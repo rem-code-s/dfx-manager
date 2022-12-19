@@ -1,6 +1,8 @@
-use std::{fs, path::PathBuf, process::Command};
+use std::{fmt::format, fs, path::PathBuf, process::Command, time::SystemTime};
 
-use crate::models::settings::Settings;
+use crate::models::{project_data::ProjectData, settings::Settings};
+
+use super::dfx::dfx;
 
 #[tauri::command]
 pub fn initial_project_path_setup() {
@@ -42,6 +44,88 @@ pub fn initial_project_path_setup() {
 }
 
 #[tauri::command]
+pub fn create_project(
+    name: String,
+    language: String,
+    disable_frontend: bool,
+) -> Result<(), String> {
+    let project_path = get_projects_path().unwrap();
+    let identity = dfx(vec!["identity", "whoami"]);
+    match identity {
+        Ok(mut _identity) => {
+            _identity.pop();
+            let identity_path = format!("{}/{}/{}", project_path.project_path, _identity, language);
+            let _ = fs::create_dir_all(&identity_path);
+
+            let frontend_arg = if disable_frontend {
+                "--no-frontend".to_string()
+            } else {
+                "--frontend".to_string()
+            };
+
+            let _ = Command::new("dfx")
+                .current_dir(identity_path)
+                .arg("new")
+                .arg(name)
+                .arg("--type")
+                .arg(language)
+                .arg(frontend_arg)
+                .output();
+
+            Ok(())
+        }
+        Err(err) => Err(err.to_string()),
+    }
+}
+
+#[tauri::command]
+pub fn get_projects_by_language(language: String) -> Result<Vec<ProjectData>, String> {
+    let project_path = get_projects_path().unwrap();
+    let identity = dfx(vec!["identity", "whoami"]);
+    match identity {
+        Ok(mut _identity) => {
+            _identity.pop();
+            let path = format!("{}/{}/{}", project_path.project_path, _identity, language);
+            let dirs = fs::read_dir(&path);
+            match dirs {
+                Ok(_dirs) => {
+                    let result: Vec<ProjectData> = _dirs
+                        .map(|_dir| {
+                            let dir = _dir.unwrap();
+                            let metadata = fs::metadata(&dir.path()).unwrap();
+                            let elapsed = metadata.modified().unwrap();
+                            let last_modified = elapsed
+                                .duration_since(SystemTime::UNIX_EPOCH)
+                                .unwrap()
+                                .as_millis() as u64;
+                            let name = dir
+                                .path()
+                                .file_name()
+                                .unwrap()
+                                .to_string_lossy()
+                                .to_string();
+                            ProjectData {
+                                name: name.clone(),
+                                path: format!("{}/{}", path, &name),
+                                last_modified,
+                            }
+                        })
+                        .collect();
+                    Ok(result)
+                }
+                Err(_) => {
+                    let _ = fs::create_dir_all(&path);
+                    Ok(vec![])
+                }
+            }
+        }
+        Err(err) => Err(err.to_string()),
+    }
+}
+// fn get_projects() {
+// }
+
+#[tauri::command]
 pub fn get_projects_path() -> Result<Settings, String> {
     let settings_file_path = _get_settings_file_path();
 
@@ -59,13 +143,18 @@ pub fn get_projects_path() -> Result<Settings, String> {
     }
 }
 
-// fn create_project(name: String, language: String, disable_frontend: bool) {
-pub fn create_project() {
-    let project_path = get_projects_path().unwrap();
-    let _ = Command::new("dfx")
-        .current_dir(project_path.project_path)
-        .arg("test")
-        .output();
+#[tauri::command]
+pub fn open_path(path: String) {
+    Command::new("sh").arg("open").arg(path);
+}
+
+#[tauri::command]
+pub fn run_command(program: String, args: Vec<String>) -> String {
+    let command = Command::new(program).args(args).output();
+    match command {
+        Ok(ok) => format!("{:?}", ok),
+        Err(err) => format!("{:?}", err),
+    }
 }
 
 fn _get_settings_file_path() -> PathBuf {

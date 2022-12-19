@@ -5,11 +5,6 @@ import Main from "@modules/main/Main";
 import Frame from "./components/frame/Frame";
 import Router from "@components/router/Router";
 
-interface ITest {
-  name: string;
-  value: number;
-}
-
 export default function App() {
   return (
     <Frame>
