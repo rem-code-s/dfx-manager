@@ -1,0 +1,14 @@
+body {
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  color: #efedf8;
+  background: linear-gradient(360deg, rgba(239, 237, 248, .18) 0%, rgba(239, 237, 248, .3) 23.97% ), 
+  linear-gradient( 116.49deg, #220bad 0%, rgba(68, 37, 167, .867455) 8.78%, rgba(220, 88, 88, .4) 46.37% ), 
+  linear-gradient( 251.87deg, #9db6f6 0%, #c1aef6 32.2%, #c39ef2 63.56%, #f9cab1 100% );
+}
+
+@font-face {
+  font-family: CircularXX;
+  src: url("./assets/fonts/CircularXXWeb-Regular.woff2");
+}
