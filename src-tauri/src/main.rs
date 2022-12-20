@@ -4,6 +4,7 @@
 )]
 
 fn main() {
+    let _ = fix_path_env::fix();
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
             dfx_manager::logic::dfx::dfx,
