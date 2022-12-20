@@ -6,7 +6,7 @@
     "distDir": "../dist"
   },
   "package": {
-    "productName": "dfx-ui",
+    "productName": "dfx manager",
     "version": "0.0.0"
   },
   "tauri": {
@@ -57,7 +57,7 @@
         "fullscreen": false,
         "height": 600,
         "resizable": true,
-        "title": "dfx-ui",
+        "title": "dfx manager",
         "width": 800
       }
     ]
