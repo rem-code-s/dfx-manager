@@ -25,13 +25,21 @@ export default function Topbar({ drawerOpen, setDrawerOpen }: IProps) {
   }, [title]);
 
   async function getIdentities() {
-    let identities: string = await invoke("dfx", { args: ["identity", "list"] });
-    setIdentities(identities.split("\n").filter((v) => v !== ""));
+    try {
+      let identities: string = await invoke("dfx", { args: ["identity", "list"] });
+      setIdentities(identities.split("\n").filter((v) => v !== ""));
+    } catch (error) {
+      console.warn("get_identities", error);
+    }
   }
 
   async function getCurrentIdentity() {
-    let currentIdentity: string = await invoke("dfx", { args: ["identity", "whoami"] });
-    setSelectedIdentity(currentIdentity.split("\n")[0]);
+    try {
+      let currentIdentity: string = await invoke("dfx", { args: ["identity", "whoami"] });
+      setSelectedIdentity(currentIdentity.split("\n")[0]);
+    } catch (error) {
+      console.warn("get_current_identity", error);
+    }
   }
 
   async function handleIdentityChange(value: string) {

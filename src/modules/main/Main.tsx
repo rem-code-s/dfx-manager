@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Avatar, ListItem, ListItemAvatar, ListItemText, Paper } from "@mui/material";
+import { Avatar, Button, ListItem, ListItemAvatar, ListItemText, Paper } from "@mui/material";
 import useDfx from "src/hooks/useDfx";
 import useTitle from "src/hooks/useTitle";
 import Loading from "@components/loading/Loading";
